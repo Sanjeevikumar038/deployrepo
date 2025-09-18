@@ -1,0 +1,224 @@
+@import './components/ModernUI.css';
+
+/* General body and root styling */
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #f0f2f5; /* Light grey background for the entire page */
+    color: #333; /* Dark grey for general text */
+}
+
+/* Main App container */
+.App {
+    text-align: center;
+    /* Ensures the content within the App is centered horizontally */
+}
+
+/* Header styling */
+.App-header {
+    background-color: #282c34; /* Dark background for the header */
+    padding: 20px;
+    color: white; /* White text in the header */
+    margin-bottom: 20px; /* Space below the header */
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Main content area layout (flexbox for two columns) */
+.main-content {
+    display: flex;
+    justify-content: center; /* Center the two panels */
+    padding: 20px;
+    gap: 20px; /* Space between the left and right panels */
+    flex-wrap: wrap; /* Allow panels to wrap on smaller screens */
+}
+
+/* Styling for left and right panels */
+.right-panel, .left-panel {
+    background-color: #fff; /* White background for panels */
+    padding: 20px;
+    border-radius: 8px; /* Rounded corners for panels */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Shadow for panels */
+    width: 100%; /* Full width on small screens */
+    max-width: 500px; /* Max width to keep content readable on larger screens */
+    margin-bottom: 20px; /* Space between panels when stacked */
+}
+
+@media (min-width: 768px) {
+    .left-panel, .right-panel {
+        width: 45%; /* Two columns on larger screens */
+        margin-bottom: 0; /* No bottom margin when side-by-side */
+    }
+}
+
+
+/* Heading styles */
+h1 {
+font-size: 2.5rem;
+margin: 0;
+}
+
+h2 {
+color: #007bff; /* Primary blue color for section titles */
+border-bottom: 2px solid #007bff; /* Underline effect */
+padding-bottom: 10px;
+margin-bottom: 20px;
+font-size: 1.8rem;
+}
+
+h3 {
+color: #343a40; /* Dark grey for subheadings */
+margin-top: 20px;
+margin-bottom: 10px;
+font-size: 1.3rem;
+}
+
+/* State messages (loading, error, empty) */
+.loading-state, .error-state, .empty-state {
+font-size: 1.2rem;
+color: #888;
+padding: 20px;
+text-align: center;
+}
+
+.error-state {
+color: #dc3545; /* Red for error messages */
+font-weight: bold;
+}
+
+/* Quiz list styling */
+.quiz-list {
+list-style-type: none; /* Remove bullet points */
+padding: 0;
+margin: 0;
+}
+
+.quiz-item {
+background-color: #e9ecef; /* Light grey background for each quiz item */
+padding: 15px;
+margin-bottom: 10px;
+border-radius: 5px;
+text-align: left;
+cursor: pointer; /* Indicate clickable item */
+transition: transform 0.2s, box-shadow 0.2s; /* Smooth hover effects */
+}
+
+.quiz-item:hover {
+transform: translateY(-3px); /* Lift effect on hover */
+box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+.quiz-item h3 {
+margin: 0 0 5px 0;
+color: #343a40;
+}
+
+.quiz-item p {
+margin: 0;
+color: #6c757d; /* Muted text for descriptions */
+font-size: 0.9rem;
+}
+
+/* Form styling */
+.form-group {
+margin-bottom: 15px;
+text-align: left;
+}
+
+.form-group label {
+display: block; /* Label on its own line */
+margin-bottom: 5px;
+font-weight: bold;
+color: #343a40;
+}
+
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea,
+.form-group select {
+width: 100%;
+padding: 10px;
+border: 1px solid #ccc;
+border-radius: 4px;
+box-sizing: border-box; /* Include padding and border in element's total width and height */
+font-size: 1rem;
+}
+
+.form-group textarea {
+min-height: 80px; /* Minimum height for textareas */
+resize: vertical; /* Allow vertical resizing */
+}
+
+.form-group input[type="text"]::placeholder,
+.form-group textarea::placeholder {
+color: #aaa;
+}
+
+.error-message {
+color: #dc3545; /* Red for form validation errors */
+font-size: 0.85rem;
+margin-top: 5px;
+display: block;
+text-align: left;
+}
+
+/* Button styling */
+button {
+background-color: #007bff; /* Primary blue button */
+color: white;
+border: none;
+padding: 10px 20px;
+border-radius: 5px;
+cursor: pointer;
+font-size: 1rem;
+transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+margin-top: 10px; /* Space above buttons */
+}
+
+button:hover {
+background-color: #0056b3; /* Darker blue on hover */
+transform: translateY(-1px); /* Slight lift on hover */
+}
+
+button:active {
+transform: translateY(0); /* Press effect */
+}
+
+/* Status messages for form submissions */
+.status-message {
+margin-top: 15px;
+font-weight: bold;
+color: #28a745; /* Green for success messages */
+}
+
+/* Option group for QuestionForm */
+.option-group {
+display: flex;
+align-items: center;
+margin-bottom: 10px;
+gap: 10px; /* Space between elements in option group */
+}
+
+.option-group input[type="radio"] {
+margin-right: 5px;
+transform: scale(1.2); /* Slightly larger radio buttons */
+}
+
+.option-group input[type="text"] {
+flex-grow: 1; /* Allows text input to take available space */
+}
+
+.option-group button {
+margin-top: 0; /* Adjust button margin within option group */
+background-color: #6c757d; /* Grey for remove button */
+}
+
+.option-group button:hover {
+background-color: #5a6268;
+}
