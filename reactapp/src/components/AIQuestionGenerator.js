@@ -86,13 +86,20 @@ const AIQuestionGenerator = ({ quizId, onQuestionsGenerated, availableQuizzes = 
       
       // Generate questions with real AI
       let generatedQuestions;
+      let usedOpenAI = false;
       try {
+        console.log('🎯 Attempting OpenAI generation...');
         generatedQuestions = await generateWithOpenAI(topic, difficulty, questionCount, questionType);
+        usedOpenAI = true;
+        console.log('✅ OpenAI generation successful!');
       } catch (error) {
-        console.error('Failed to generate with OpenAI, using templates:', error);
-        addToast('OpenAI failed, using template questions', 'warning');
+        console.error('❌ OpenAI generation failed:', error.message);
+        console.log('🔄 Falling back to template questions...');
         generatedQuestions = generateTemplateQuestions(topic, difficulty, questionCount, questionType);
+        usedOpenAI = false;
       }
+      
+      console.log(`📊 Generated ${generatedQuestions.length} questions using ${usedOpenAI ? 'OpenAI' : 'templates'}`);
       
       // Save questions to the main quiz system
       try {
@@ -142,7 +149,7 @@ const AIQuestionGenerator = ({ quizId, onQuestionsGenerated, availableQuizzes = 
         console.error('Error saving questions:', error);
       }
       
-      addToast(`Generated ${questionCount} questions successfully!`, 'success');
+      addToast(`Generated ${questionCount} questions successfully using ${usedOpenAI ? 'OpenAI' : 'templates'}!`, 'success');
       
       // Trigger dashboard refresh to show new quiz and questions
       window.dispatchEvent(new Event('questionsUpdated'));
@@ -166,21 +173,25 @@ const AIQuestionGenerator = ({ quizId, onQuestionsGenerated, availableQuizzes = 
   const generateWithOpenAI = async (topic, difficulty, count, type) => {
     const API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
     
-    console.log('API Key check:', API_KEY ? 'Present' : 'Missing');
+    console.log('=== OpenAI Debug Info ===');
+    console.log('API Key present:', !!API_KEY);
+    console.log('API Key length:', API_KEY ? API_KEY.length : 0);
+    console.log('API Key starts with sk-:', API_KEY ? API_KEY.startsWith('sk-') : false);
     
-    if (!API_KEY || API_KEY === 'your-openai-api-key-here') {
-      console.log('No valid API key, using templates');
-      addToast('OpenAI API key not configured. Using template questions.', 'warning');
-      return generateTemplateQuestions(topic, difficulty, count, type);
+    if (!API_KEY || API_KEY === 'your-openai-api-key-here' || API_KEY.length < 20) {
+      console.log('❌ Invalid API key, using templates');
+      addToast('OpenAI API key invalid. Using template questions.', 'warning');
+      throw new Error('Invalid API key');
     }
 
-    console.log(`Generating ${count} questions about ${topic} with OpenAI`);
+    console.log(`🤖 Generating ${count} questions about ${topic} with OpenAI`);
     addToast('Generating questions with OpenAI...', 'info');
 
     const prompt = createPrompt(topic, difficulty, count, type);
-    console.log('OpenAI Prompt:', prompt);
+    console.log('📝 OpenAI Prompt:', prompt);
     
     try {
+      console.log('🚀 Making OpenAI API request...');
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -198,22 +209,54 @@ const AIQuestionGenerator = ({ quizId, onQuestionsGenerated, availableQuizzes = 
         })
       });
 
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('OpenAI API Error Response:', errorText);
-        throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
+        console.error('❌ OpenAI API Error Response:', errorText);
+        
+        let errorMessage = 'OpenAI API failed';
+        try {
+          const errorData = JSON.parse(errorText);
+          if (errorData.error) {
+            errorMessage = errorData.error.message || errorData.error.type || 'Unknown error';
+            if (errorData.error.code === 'insufficient_quota') {
+              errorMessage = 'OpenAI quota exceeded';
+            } else if (errorData.error.code === 'invalid_api_key') {
+              errorMessage = 'Invalid OpenAI API key';
+            }
+          }
+        } catch (parseError) {
+          console.log('Could not parse error response');
+        }
+        
+        addToast(`OpenAI Error: ${errorMessage}`, 'error');
+        throw new Error(`OpenAI API error: ${response.status} - ${errorMessage}`);
       }
 
       const data = await response.json();
-      console.log('OpenAI Response:', data);
+      console.log('✅ OpenAI Response received:', data);
+      
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        console.error('❌ Invalid response structure:', data);
+        throw new Error('Invalid response structure from OpenAI');
+      }
+      
       const generatedContent = data.choices[0].message.content;
-      console.log('Generated Content:', generatedContent);
+      console.log('📄 Generated Content:', generatedContent);
       
       addToast('Successfully generated questions with OpenAI!', 'success');
       return parseAIResponse(generatedContent, topic, difficulty, type);
     } catch (error) {
-      console.error('OpenAI API failed:', error);
-      addToast(`OpenAI quota exceeded. Using template questions.`, 'error');
+      console.error('❌ OpenAI API failed:', error.message);
+      if (error.message.includes('quota')) {
+        addToast('OpenAI quota exceeded. Using template questions.', 'error');
+      } else if (error.message.includes('api_key')) {
+        addToast('Invalid OpenAI API key. Using template questions.', 'error');
+      } else {
+        addToast(`OpenAI failed: ${error.message}. Using template questions.`, 'error');
+      }
       throw error;
     }
   };

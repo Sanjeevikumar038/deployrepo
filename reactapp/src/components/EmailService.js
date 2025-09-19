@@ -33,6 +33,7 @@ class EmailService {
 
   // Send quiz reminder email
   async sendQuizReminder(studentEmail, quizData) {
+    const baseUrl = process.env.REACT_APP_DEPLOYED_URL || window.location.origin;
     const templateParams = {
       to_email: studentEmail,
       student_name: this.getStudentName(studentEmail),
@@ -40,7 +41,7 @@ class EmailService {
       quiz_description: quizData.description,
       time_limit: quizData.timeLimit,
       reminder_message: `Don't forget to take the "${quizData.title}" quiz!`,
-      quiz_url: window.location.origin
+      quiz_url: `${baseUrl}/take-quiz/${quizData.id}`
     };
 
     return this.sendEmail(this.templateIds.quizReminder, templateParams);
@@ -83,7 +84,7 @@ class EmailService {
         quiz_title: quizData.title,
         quiz_description: quizData.description,
         time_limit: quizData.timeLimit,
-        quiz_url: window.location.origin
+        quiz_url: `${process.env.REACT_APP_DEPLOYED_URL || window.location.origin}/take-quiz/${quizData.id}`
       };
       
       return this.sendEmail(this.templateIds.quizReminder, templateParams, 'reminder');
