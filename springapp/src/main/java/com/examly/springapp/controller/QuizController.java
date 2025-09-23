@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 @RestController
 @RequestMapping("/api/quizzes")
+@CrossOrigin(origins = {"https://quizmaster-s.netlify.app", "http://localhost:3000"})
 public class QuizController {
     @Autowired
     private QuizService quizService;
