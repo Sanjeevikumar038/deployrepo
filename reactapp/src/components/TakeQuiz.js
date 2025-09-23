@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import LoadingSpinner from './LoadingSpinner';
 
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+
 const TakeQuiz = ({ quizId, onQuizCompleted }) => {
     const [quiz, setQuiz] = useState(null);
     const [questions, setQuestions] = useState([]);
@@ -111,9 +113,9 @@ const TakeQuiz = ({ quizId, onQuizCompleted }) => {
             try {
                 setLoading(true);
                 
-                const quizResponse = await axios.get(`http://localhost:8080/api/quizzes/${quizId}`);
+                const quizResponse = await axios.get(`${BASE_URL}/quizzes/${quizId}`);
                 setQuiz(quizResponse.data);
-                const questionsResponse = await axios.get(`http://localhost:8080/api/quizzes/${quizId}/questions`);
+                const questionsResponse = await axios.get(`${BASE_URL}/quizzes/${quizId}/questions`);
                 
                 // Get edited and deleted questions from localStorage
                 const editedQuestions = JSON.parse(localStorage.getItem('editedQuestions') || '{}');
@@ -253,7 +255,7 @@ await exitFullscreen();
 // Small delay to ensure fullscreen exit completes
 setTimeout(() => {
 // Try API as well
-axios.post(`http://localhost:8080/api/quiz-attempts`, submission)
+axios.post(`${BASE_URL}/quiz-attempts`, submission)
 .then(result => {
 console.log('Quiz submission successful:', result.data);
 onQuizCompleted(result.data);

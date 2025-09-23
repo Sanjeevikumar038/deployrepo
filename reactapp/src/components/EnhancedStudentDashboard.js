@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './ModernUI.css';
 
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+
 const EnhancedStudentDashboard = ({ onSelectQuiz, onViewMyResults, onLeaderboard }) => {
   const [studentStats, setStudentStats] = useState({
     totalQuizzes: 0,
@@ -94,7 +96,7 @@ const EnhancedStudentDashboard = ({ onSelectQuiz, onViewMyResults, onLeaderboard
       
       for (const quiz of quizzes) {
         try {
-          const response = await fetch(`http://localhost:8080/api/quizzes/${quiz.id}/questions`);
+          const response = await fetch(`${BASE_URL}/quizzes/${quiz.id}/questions`);
           if (response.ok) {
             const questions = await response.json();
             const activeQuestions = questions.filter(q => !deletedQuestions.includes(q.id));

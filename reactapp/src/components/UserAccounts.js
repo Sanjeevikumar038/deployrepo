@@ -25,7 +25,8 @@ const UserAccounts = () => {
   const fetchUsers = async () => {
     try {
       // Try to fetch from database API first
-      const response = await fetch('http://localhost:8080/api/students');
+      const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+      const response = await fetch(`${BASE_URL}/students`);
       if (response.ok) {
         const students = await response.json();
         const studentUsers = students.map(student => ({
@@ -78,7 +79,8 @@ const UserAccounts = () => {
     
     try {
       // Try API first
-      const response = await fetch('http://localhost:8080/api/students/register', {
+      const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+      const response = await fetch(`${BASE_URL}/students/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

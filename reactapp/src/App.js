@@ -122,8 +122,8 @@ function AppWithRouter() {
 
   const handleDeleteQuiz = async (quizId) => {
     try {
-      const BASE_URL = 'http://localhost:8080';
-      await fetch(`${BASE_URL}/api/quizzes/${quizId}`, {
+      const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+      await fetch(`${BASE_URL}/quizzes/${quizId}`, {
         method: 'DELETE'
       });
       

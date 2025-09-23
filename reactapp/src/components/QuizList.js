@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import LoadingSpinner from './LoadingSpinner';
 
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+
 const QuizList = ({ onSelectQuiz, onViewQuestions, onDeleteQuiz, userRole }) => { 
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,9 +29,8 @@ const QuizList = ({ onSelectQuiz, onViewQuestions, onDeleteQuiz, userRole }) => 
     const fetchQuizzes = async () => {
       try {
         setLoading(true);
-        // IMPORTANT: Replace with your actual Examly URL
-       const BASE_URL = 'http://localhost:8080';
-        const response = await axios.get(`${BASE_URL}/api/quizzes`);
+        // Using environment variable for API URL
+        const response = await axios.get(`${BASE_URL}/quizzes`);
         setQuizzes(response.data);
         
         // Load question counts for each quiz
@@ -38,7 +39,7 @@ const QuizList = ({ onSelectQuiz, onViewQuestions, onDeleteQuiz, userRole }) => 
         
         for (const quiz of response.data) {
           try {
-            const questionsResponse = await axios.get(`${BASE_URL}/api/quizzes/${quiz.id}/questions`);
+            const questionsResponse = await axios.get(`${BASE_URL}/quizzes/${quiz.id}/questions`);
             const activeQuestions = questionsResponse.data.filter(q => !deletedQuestions.includes(q.id));
             
             // Add AI-generated questions count
