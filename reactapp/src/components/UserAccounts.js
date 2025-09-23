@@ -24,6 +24,35 @@ const UserAccounts = () => {
 
   const fetchUsers = async () => {
     try {
+      // Try to fetch from database API first
+      const response = await fetch('http://localhost:8080/api/students');
+      if (response.ok) {
+        const students = await response.json();
+        const studentUsers = students.map(student => ({
+          id: student.id,
+          name: student.username,
+          email: student.email || 'N/A',
+          role: 'student',
+          active: true,
+          joinedDate: student.createdAt ? new Date(student.createdAt).toLocaleDateString() : new Date().toLocaleDateString()
+        }));
+        setUsers(studentUsers);
+      } else {
+        // Fallback to localStorage
+        const savedStudents = localStorage.getItem('students');
+        const studentUsers = savedStudents ? JSON.parse(savedStudents).map((student, index) => ({
+          id: index + 1,
+          name: student.username,
+          email: student.email || 'N/A',
+          role: 'student',
+          active: true,
+          joinedDate: new Date().toISOString().split('T')[0]
+        })) : [];
+        setUsers(studentUsers);
+      }
+      setLoading(false);
+    } catch (err) {
+      // Fallback to localStorage on error
       const savedStudents = localStorage.getItem('students');
       const studentUsers = savedStudents ? JSON.parse(savedStudents).map((student, index) => ({
         id: index + 1,
@@ -33,29 +62,13 @@ const UserAccounts = () => {
         active: true,
         joinedDate: new Date().toISOString().split('T')[0]
       })) : [];
-      
       setUsers(studentUsers);
-      setLoading(false);
-    } catch (err) {
       setLoading(false);
     }
   };
 
-  const addUser = (e) => {
+  const addUser = async (e) => {
     e.preventDefault();
-    
-    // Check for duplicate username
-    const savedStudents = JSON.parse(localStorage.getItem('students') || '[]');
-    if (savedStudents.find(s => s.username === newUser.name)) {
-      alert('Username already exists');
-      return;
-    }
-    
-    // Check for duplicate email
-    if (savedStudents.find(s => s.email === newUser.email)) {
-      alert('Email already exists');
-      return;
-    }
     
     // Validate password length
     if (newUser.password.length < 6) {
@@ -63,27 +76,60 @@ const UserAccounts = () => {
       return;
     }
     
-    // Add to students list for login
-    const newStudent = {
-      username: newUser.name,
-      email: newUser.email,
-      password: newUser.password
-    };
-    const updatedStudents = [...savedStudents, newStudent];
-    localStorage.setItem('students', JSON.stringify(updatedStudents));
-    
-    // Add to users display
-    const user = {
-      id: Date.now(),
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
-      active: true,
-      joinedDate: new Date().toISOString().split('T')[0]
-    };
-    setUsers([...users, user]);
-    setNewUser({ name: '', email: '', password: '', role: 'student' });
-    setShowAddForm(false);
+    try {
+      // Try API first
+      const response = await fetch('http://localhost:8080/api/students/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: newUser.name,
+          email: newUser.email,
+          password: newUser.password
+        })
+      });
+      
+      if (response.ok) {
+        // Refresh the user list from database
+        fetchUsers();
+        setNewUser({ name: '', email: '', password: '', role: 'student' });
+        setShowAddForm(false);
+      } else {
+        const errorMsg = await response.text();
+        alert(errorMsg);
+      }
+    } catch (error) {
+      // Fallback to localStorage
+      const savedStudents = JSON.parse(localStorage.getItem('students') || '[]');
+      if (savedStudents.find(s => s.username === newUser.name)) {
+        alert('Username already exists');
+        return;
+      }
+      
+      if (savedStudents.find(s => s.email === newUser.email)) {
+        alert('Email already exists');
+        return;
+      }
+      
+      const newStudent = {
+        username: newUser.name,
+        email: newUser.email,
+        password: newUser.password
+      };
+      const updatedStudents = [...savedStudents, newStudent];
+      localStorage.setItem('students', JSON.stringify(updatedStudents));
+      
+      const user = {
+        id: Date.now(),
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        active: true,
+        joinedDate: new Date().toISOString().split('T')[0]
+      };
+      setUsers([...users, user]);
+      setNewUser({ name: '', email: '', password: '', role: 'student' });
+      setShowAddForm(false);
+    }
   };
 
   const toggleUserStatus = (userId) => {

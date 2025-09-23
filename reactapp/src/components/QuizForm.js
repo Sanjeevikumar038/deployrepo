@@ -32,19 +32,35 @@ const QuizForm = ({ onQuizCreated }) => {
       return;
     }
 
-try {
-const newQuiz = { title, description, timeLimit: parseInt(timeLimit) };
-await axios.post('http://localhost:8080/api/quizzes', newQuiz);
-addToast('Quiz created successfully!', 'success');
-setTitle('');
-setDescription('');
-setTimeLimit('');
-setErrors({});
-onQuizCreated();
-} catch (err) {
-addToast('Failed to create quiz. Please try again.', 'error');
-}
-};
+    const newQuiz = { 
+      id: Date.now(), 
+      title, 
+      description, 
+      timeLimit: parseInt(timeLimit),
+      createdAt: new Date().toISOString()
+    };
+
+    try {
+      // Try API first
+      const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+      await axios.post(`${BASE_URL}/quizzes`, newQuiz);
+      addToast('Quiz created successfully!', 'success');
+    } catch (err) {
+      // Fallback to localStorage
+      console.log('API failed, using localStorage');
+      const existingQuizzes = JSON.parse(localStorage.getItem('quizzes') || '[]');
+      existingQuizzes.push(newQuiz);
+      localStorage.setItem('quizzes', JSON.stringify(existingQuizzes));
+      addToast('Quiz created successfully (offline mode)!', 'success');
+    }
+    
+    // Reset form
+    setTitle('');
+    setDescription('');
+    setTimeLimit('');
+    setErrors({});
+    onQuizCreated();
+  };
 
 return (
 <div className="quiz-form-container">

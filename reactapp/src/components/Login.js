@@ -12,11 +12,15 @@ const Login = ({ onLogin }) => {
   const [adminError, setAdminError] = useState('');
   const [adminLoading, setAdminLoading] = useState(false);
 
-  // Load students from localStorage on component mount
+  // Load students and migrate to database
   useEffect(() => {
     const savedStudents = localStorage.getItem('students');
     if (savedStudents) {
-      setStudents(JSON.parse(savedStudents));
+      const studentList = JSON.parse(savedStudents);
+      setStudents(studentList);
+      
+      // Migrate to database
+      migrateStudentsToDatabase(studentList);
     }
     
     // Listen for admin modal open event from navbar
@@ -31,6 +35,20 @@ const Login = ({ onLogin }) => {
     };
   }, []);
 
+  // Migrate localStorage students to database
+  const migrateStudentsToDatabase = async (students) => {
+    try {
+      await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/students/migrate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(students)
+      });
+      console.log('Students migrated to database');
+    } catch (error) {
+      console.log('Migration failed, continuing with localStorage');
+    }
+  };
+
   // Save students to localStorage
   const saveStudents = (studentList) => {
     localStorage.setItem('students', JSON.stringify(studentList));
@@ -42,85 +60,88 @@ const Login = ({ onLogin }) => {
     setError('');
     setIsLoading(true);
 
-    // Simulate loading for better UX
-    await new Promise(resolve => setTimeout(resolve, 600));
-
-    // Remove admin login from student form - now handled by modal
-
-    if (isSignup) {
-      // Student signup
-      if (credentials.username.length < 3) {
-        setError('Username must be at least 3 characters');
-        setIsLoading(false);
-        return;
+    try {
+      if (isSignup) {
+        // Student signup via API
+        if (credentials.username.length < 3) {
+          setError('Username must be at least 3 characters');
+          setIsLoading(false);
+          return;
+        }
+        if (credentials.password.length < 6) {
+          setError('Password must be at least 6 characters');
+          setIsLoading(false);
+          return;
+        }
+        
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/students/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(credentials)
+        });
+        
+        if (response.ok) {
+          const student = await response.json();
+          localStorage.setItem('username', student.username);
+          setIsLoading(false);
+          onLogin();
+        } else {
+          const errorMsg = await response.text();
+          setError(errorMsg);
+          setIsLoading(false);
+        }
+      } else {
+        // Student login via API
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/students/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: credentials.username, password: credentials.password })
+        });
+        
+        if (response.ok) {
+          const student = await response.json();
+          localStorage.setItem('username', student.username);
+          setIsLoading(false);
+          onLogin();
+        } else {
+          const errorMsg = await response.text();
+          setError(errorMsg);
+          setIsLoading(false);
+        }
       }
-      if (credentials.password.length < 6) {
-        setError('Password must be at least 6 characters');
-        setIsLoading(false);
-        return;
-      }
+    } catch (error) {
+      // Fallback to localStorage if API fails
+      console.log('API failed, using localStorage fallback');
       
-      // Check if username is deleted or deactivated
-      const userStatuses = JSON.parse(localStorage.getItem('userStatuses') || '{}');
-      const userStatus = userStatuses[credentials.username];
-      
-      if (userStatus?.deleted) {
-        setError('This username has been permanently deleted. Please contact administrator.');
-        setIsLoading(false);
-        return;
-      }
-      
-      if (userStatus?.active === false) {
-        setError('This username has been deactivated. Please contact administrator.');
-        setIsLoading(false);
-        return;
-      }
-      
-      if (students.find(s => s.username === credentials.username)) {
-        setError('Username already exists');
-        setIsLoading(false);
-        return;
-      }
-      
-      if (students.find(s => s.email === credentials.email)) {
-        setError('Email already exists');
-        setIsLoading(false);
-        return;
-      }
-      
-      const newStudent = { username: credentials.username, password: credentials.password, email: credentials.email };
-      const updatedStudents = [...students, newStudent];
-      saveStudents(updatedStudents);
-      localStorage.setItem('username', credentials.username);
-      console.log('Signup: Saved username to localStorage:', credentials.username);
-      setIsLoading(false);
-      onLogin();
-    } else {
-      // Student login - check user status first
-      const userStatuses = JSON.parse(localStorage.getItem('userStatuses') || '{}');
-      const userStatus = userStatuses[credentials.username];
-      
-      if (userStatus?.deleted) {
-        setError('This account has been deleted. Please contact administrator.');
-        setIsLoading(false);
-        return;
-      }
-      
-      if (userStatus?.active === false) {
-        setError('This account has been deactivated. Please contact administrator.');
-        setIsLoading(false);
-        return;
-      }
-      
-      const student = students.find(s => s.username === credentials.username && s.password === credentials.password);
-      if (student) {
+      if (isSignup) {
+        if (students.find(s => s.username === credentials.username)) {
+          setError('Username already exists');
+          setIsLoading(false);
+          return;
+        }
+        
+        if (students.find(s => s.email === credentials.email)) {
+          setError('Email already exists');
+          setIsLoading(false);
+          return;
+        }
+        
+        const newStudent = { username: credentials.username, password: credentials.password, email: credentials.email };
+        const updatedStudents = [...students, newStudent];
+        saveStudents(updatedStudents);
         localStorage.setItem('username', credentials.username);
-        console.log('Login: Saved username to localStorage:', credentials.username);
         setIsLoading(false);
         onLogin();
       } else {
-        setError('Invalid credentials');
-        setIsLoading(false);
+        const student = students.find(s => s.username === credentials.username && s.password === credentials.password);
+        if (student) {
+          localStorage.setItem('username', credentials.username);
+          setIsLoading(false);
+          onLogin();
+        } else {
+          setError('Invalid credentials');
+          setIsLoading(false);
+        }
       }
     }
   };
