@@ -26,7 +26,7 @@ const ManageQuizzes = () => {
   const fetchQuizzes = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/quizzes');
+      const response = await axios.get('https://deployrepo-i9b2.onrender.coms/api/quizzes');
       setQuizzes(response.data);
       setError(''); // Clear any previous errors
       setLoading(false);
@@ -40,7 +40,7 @@ const ManageQuizzes = () => {
     if (!window.confirm('Are you sure you want to delete this quiz?')) return;
     
     try {
-      await axios.delete(`http://localhost:8080/api/quizzes/${quizId}`);
+      await axios.delete(`https://deployrepo-i9b2.onrender.com//api/quizzes/${quizId}`);
       setQuizzes(quizzes.filter(quiz => quiz.id !== quizId));
     } catch (err) {
       setError(handleApiError(err, 'Failed to delete quiz'));

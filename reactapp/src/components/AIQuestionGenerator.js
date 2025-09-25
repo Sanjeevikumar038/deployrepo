@@ -59,7 +59,7 @@ const AIQuestionGenerator = ({ quizId, onQuestionsGenerated, availableQuizzes = 
         
         try {
           // Try API first
-          const response = await fetch('http://localhost:8080/api/quizzes', {
+          const response = await fetch('https://deployrepo-i9b2.onrender.com/api/quizzes', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newQuiz)

@@ -96,7 +96,7 @@ const EnhancedStudentDashboard = ({ onSelectQuiz, onViewMyResults, onLeaderboard
       
       for (const quiz of quizzes) {
         try {
-          const response = await fetch(`${BASE_URL}/quizzes/${quiz.id}/questions`);
+          const response = await fetch(`${BASE_URL}/api/quizzes/${quiz.id}/questions`);
           if (response.ok) {
             const questions = await response.json();
             const activeQuestions = questions.filter(q => !deletedQuestions.includes(q.id));

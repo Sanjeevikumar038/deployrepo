@@ -30,7 +30,7 @@ const QuizList = ({ onSelectQuiz, onViewQuestions, onDeleteQuiz, userRole }) => 
       try {
         setLoading(true);
         // Using environment variable for API URL
-        const response = await axios.get(`${BASE_URL}/quizzes`);
+        const response = await axios.get(`${BASE_URL}/api/quizzes`);
         setQuizzes(response.data);
         
         // Load question counts for each quiz
@@ -39,7 +39,7 @@ const QuizList = ({ onSelectQuiz, onViewQuestions, onDeleteQuiz, userRole }) => 
         
         for (const quiz of response.data) {
           try {
-            const questionsResponse = await axios.get(`${BASE_URL}/quizzes/${quiz.id}/questions`);
+            const questionsResponse = await axios.get(`${BASE_URL}/api/quizzes/${quiz.id}/questions`);
             const activeQuestions = questionsResponse.data.filter(q => !deletedQuestions.includes(q.id));
             
             // Add AI-generated questions count
