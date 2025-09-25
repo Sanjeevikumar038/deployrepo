@@ -5,25 +5,14 @@ const Login = ({ onLogin }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '', email: '' });
   const [error, setError] = useState('');
   const [isSignup, setIsSignup] = useState(false);
-  const [students, setStudents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [adminCredentials, setAdminCredentials] = useState({ username: '', password: '' });
   const [adminError, setAdminError] = useState('');
   const [adminLoading, setAdminLoading] = useState(false);
 
-  // Load students and migrate to database
+  // Listen for admin modal
   useEffect(() => {
-    const savedStudents = localStorage.getItem('students');
-    if (savedStudents) {
-      const studentList = JSON.parse(savedStudents);
-      setStudents(studentList);
-      
-      // Migrate to database
-      migrateStudentsToDatabase(studentList);
-    }
-    
-    // Listen for admin modal open event from navbar
     const handleOpenAdminModal = () => {
       setShowAdminModal(true);
     };
@@ -34,33 +23,6 @@ const Login = ({ onLogin }) => {
       window.removeEventListener('openAdminModal', handleOpenAdminModal);
     };
   }, []);
-
-  // Migrate localStorage students to database
-  const migrateStudentsToDatabase = async (students) => {
-    if (!students || students.length === 0) return;
-    
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/students/migrate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(students)
-      });
-      
-      if (response.ok) {
-        console.log('Students migrated to database');
-      } else {
-        console.log('Migration failed with status:', response.status);
-      }
-    } catch (error) {
-      console.log('Migration failed, continuing with localStorage');
-    }
-  };
-
-  // Save students to localStorage
-  const saveStudents = (studentList) => {
-    localStorage.setItem('students', JSON.stringify(studentList));
-    setStudents(studentList);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,39 +79,8 @@ const Login = ({ onLogin }) => {
         }
       }
     } catch (error) {
-      // Fallback to localStorage if API fails
-      console.log('API failed, using localStorage fallback');
-      
-      if (isSignup) {
-        if (students.find(s => s.username === credentials.username)) {
-          setError('Username already exists');
-          setIsLoading(false);
-          return;
-        }
-        
-        if (students.find(s => s.email === credentials.email)) {
-          setError('Email already exists');
-          setIsLoading(false);
-          return;
-        }
-        
-        const newStudent = { username: credentials.username, password: credentials.password, email: credentials.email };
-        const updatedStudents = [...students, newStudent];
-        saveStudents(updatedStudents);
-        localStorage.setItem('username', credentials.username);
-        setIsLoading(false);
-        onLogin();
-      } else {
-        const student = students.find(s => s.username === credentials.username && s.password === credentials.password);
-        if (student) {
-          localStorage.setItem('username', credentials.username);
-          setIsLoading(false);
-          onLogin();
-        } else {
-          setError('Invalid credentials');
-          setIsLoading(false);
-        }
-      }
+      setError('Unable to connect to server. Please try again.');
+      setIsLoading(false);
     }
   };
 
