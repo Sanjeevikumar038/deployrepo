@@ -20,6 +20,9 @@ public class DataInitializer implements CommandLineRunner {
     
     @Autowired
     private OptionRepository optionRepository;
+    
+    @Autowired
+    private StudentRepository studentRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -66,6 +69,17 @@ public class DataInitializer implements CommandLineRunner {
             optionRepository.saveAll(Arrays.asList(option1, option2, option3));
             
             System.out.println("Sample data initialized successfully!");
+        }
+        
+        // Create test student if none exists
+        if (studentRepository.count() == 0) {
+            Student testStudent = new Student();
+            testStudent.setUsername("sanju");
+            testStudent.setPassword("password");
+            testStudent.setEmail("sanju@test.com");
+            studentRepository.save(testStudent);
+            
+            System.out.println("Test student created: username=sanju, password=password");
         }
     }
 }
