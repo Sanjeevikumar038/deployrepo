@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import LoadingSpinner from './LoadingSpinner';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://deployrepo-i9b2.onrender.com/api';
 
 const TakeQuiz = ({ quizId, onQuizCompleted }) => {
     const [quiz, setQuiz] = useState(null);

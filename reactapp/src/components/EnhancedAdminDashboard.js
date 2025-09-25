@@ -41,7 +41,7 @@ const EnhancedAdminDashboard = ({
 
   const loadQuizzes = async () => {
     try {
-      const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+      const BASE_URL = process.env.REACT_APP_API_URL || 'https://deployrepo-i9b2.onrender.com/api';
       const response = await axios.get(`${BASE_URL}/quizzes`);
       setAvailableQuizzes(response.data);
     } catch (error) {
@@ -123,7 +123,7 @@ const EnhancedAdminDashboard = ({
       if (totalQuestions === 0) {
         for (const quiz of quizzes) {
           try {
-            const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+            const BASE_URL = process.env.REACT_APP_API_URL || 'https://deployrepo-i9b2.onrender.com/api';
             const questionsResponse = await axios.get(`${BASE_URL}/quizzes/${quiz.id}/questions`);
             const activeApiQuestions = questionsResponse.data.filter(q => !deletedQuestions.includes(q.id));
             totalQuestions += activeApiQuestions.length;

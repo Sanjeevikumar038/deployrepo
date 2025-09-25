@@ -79,7 +79,7 @@ const QuestionForm = ({ quizId, onQuestionAdded }) => {
     };
 
     try {
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://deployrepo-i9b2.onrender.com/api';
 await axios.post(
 `${BASE_URL}/quizzes/${quizId}/questions`,
 newQuestion

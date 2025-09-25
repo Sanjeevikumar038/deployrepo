@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './ModernUI.css';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const BASE_URL = process.env.REACT_APP_API_URL || 'https://deployrepo-i9b2.onrender.com/api';
 
 const EnhancedStudentDashboard = ({ onSelectQuiz, onViewMyResults, onLeaderboard }) => {
   const [studentStats, setStudentStats] = useState({
