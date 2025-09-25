@@ -41,9 +41,15 @@ public class StudentService {
     public List<Student> migrateStudents(List<Student> students) {
         List<Student> savedStudents = new ArrayList<>();
         
+        if (students == null || students.isEmpty()) {
+            return savedStudents;
+        }
+        
         for (Student student : students) {
-            if (!studentRepository.existsByUsername(student.getUsername())) {
-                savedStudents.add(studentRepository.save(student));
+            if (student != null && student.getUsername() != null && !student.getUsername().trim().isEmpty()) {
+                if (!studentRepository.existsByUsername(student.getUsername())) {
+                    savedStudents.add(studentRepository.save(student));
+                }
             }
         }
         
