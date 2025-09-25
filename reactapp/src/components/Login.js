@@ -37,6 +37,8 @@ const Login = ({ onLogin }) => {
 
   // Migrate localStorage students to database
   const migrateStudentsToDatabase = async (students) => {
+    if (!students || students.length === 0) return;
+    
     try {
       await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/students/migrate`, {
         method: 'POST',
