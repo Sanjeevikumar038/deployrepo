@@ -40,12 +40,17 @@ const Login = ({ onLogin }) => {
     if (!students || students.length === 0) return;
     
     try {
-      await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/students/migrate`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/students/migrate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(students)
       });
-      console.log('Students migrated to database');
+      
+      if (response.ok) {
+        console.log('Students migrated to database');
+      } else {
+        console.log('Migration failed with status:', response.status);
+      }
     } catch (error) {
       console.log('Migration failed, continuing with localStorage');
     }
