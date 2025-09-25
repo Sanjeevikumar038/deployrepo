@@ -81,7 +81,7 @@ const QuestionForm = ({ quizId, onQuestionAdded }) => {
     try {
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 await axios.post(
-`${BASE_URL}/api/quizzes/${quizId}/questions`,
+`${BASE_URL}/quizzes/${quizId}/questions`,
 newQuestion
 );
 setMessage('Question added!');

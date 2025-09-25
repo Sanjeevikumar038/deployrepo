@@ -43,7 +43,7 @@ const QuizForm = ({ onQuizCreated }) => {
     try {
       // Try API first
       const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
-      await axios.post(`${BASE_URL}/api/quizzes`, newQuiz);
+      await axios.post(`${BASE_URL}/quizzes`, newQuiz);
       addToast('Quiz created successfully!', 'success');
     } catch (err) {
       // Fallback to localStorage

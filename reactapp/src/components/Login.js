@@ -43,7 +43,7 @@ const Login = ({ onLogin }) => {
           return;
         }
         
-        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/students/register`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://deployrepo-i9b2.onrender.com/api'}/students/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(credentials)
@@ -61,7 +61,7 @@ const Login = ({ onLogin }) => {
         }
       } else {
         // Student login via API
-        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8080/api'}/students/login`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://deployrepo-i9b2.onrender.com/api'}/students/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: credentials.username, password: credentials.password })

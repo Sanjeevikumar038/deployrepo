@@ -17,7 +17,21 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowedOrigins("https://quizmaster-s.netlify.app", "http://localhost:3000")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(false)
+                .allowCredentials(true)
                 .maxAge(3600);
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("https://quizmaster-s.netlify.app");
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
