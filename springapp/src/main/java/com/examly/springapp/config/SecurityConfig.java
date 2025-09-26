@@ -53,7 +53,7 @@ public class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/students/login", "/api/students/register").permitAll()
+                .requestMatchers("/api/students/login", "/api/students/register", "/api/quizzes/**").permitAll()
                 .anyRequest().authenticated()
             );
         return http.build();
