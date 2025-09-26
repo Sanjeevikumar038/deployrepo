@@ -52,11 +52,16 @@ const Login = ({ onLogin }) => {
         if (response.ok) {
           const student = await response.json();
           localStorage.setItem('username', student.username);
+          localStorage.setItem('userId', student.id);
           setIsLoading(false);
           onLogin();
         } else {
-          const errorMsg = await response.text();
-          setError(errorMsg);
+          try {
+            const errorData = await response.json();
+            setError(errorData.error || errorData.errors?.[0] || 'Registration failed');
+          } catch {
+            setError('Registration failed');
+          }
           setIsLoading(false);
         }
       } else {
@@ -70,11 +75,16 @@ const Login = ({ onLogin }) => {
         if (response.ok) {
           const student = await response.json();
           localStorage.setItem('username', student.username);
+          localStorage.setItem('userId', student.id);
           setIsLoading(false);
           onLogin();
         } else {
-          const errorMsg = await response.text();
-          setError(errorMsg);
+          try {
+            const errorData = await response.json();
+            setError(errorData.error || errorData.errors?.[0] || 'Invalid credentials');
+          } catch {
+            setError('Invalid credentials');
+          }
           setIsLoading(false);
         }
       }

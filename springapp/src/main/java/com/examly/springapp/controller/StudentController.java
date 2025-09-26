@@ -1,11 +1,16 @@
 package com.examly.springapp.controller;
 
 import com.examly.springapp.model.Student;
+import com.examly.springapp.dto.LoginResponse;
 import com.examly.springapp.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @RestController
@@ -17,12 +22,20 @@ public class StudentController {
     private StudentService studentService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerStudent(@RequestBody Student student) {
+    public ResponseEntity<?> registerStudent(@Valid @RequestBody Student student) {
         try {
             Student savedStudent = studentService.registerStudent(student);
-            return ResponseEntity.ok(savedStudent);
+            LoginResponse response = new LoginResponse(
+                savedStudent.getId(),
+                savedStudent.getUsername(),
+                savedStudent.getEmail(),
+                "Registration successful"
+            );
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
         }
     }
 
@@ -30,9 +43,17 @@ public class StudentController {
     public ResponseEntity<?> loginStudent(@RequestBody Student loginRequest) {
         try {
             Student student = studentService.loginStudent(loginRequest.getUsername(), loginRequest.getPassword());
-            return ResponseEntity.ok(student);
+            LoginResponse response = new LoginResponse(
+                student.getId(),
+                student.getUsername(),
+                student.getEmail(),
+                "Login successful"
+            );
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
         }
     }
 
