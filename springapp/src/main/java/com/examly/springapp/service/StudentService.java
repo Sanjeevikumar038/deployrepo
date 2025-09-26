@@ -3,6 +3,7 @@ package com.examly.springapp.service;
 import com.examly.springapp.model.Student;
 import com.examly.springapp.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.ArrayList;
@@ -12,6 +13,9 @@ public class StudentService {
 
     @Autowired
     private StudentRepository studentRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public Student registerStudent(Student student) {
         if (studentRepository.existsByUsername(student.getUsername())) {
@@ -20,6 +24,7 @@ public class StudentService {
         if (student.getEmail() != null && studentRepository.existsByEmail(student.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
+        student.setPassword(passwordEncoder.encode(student.getPassword()));
         return studentRepository.save(student);
     }
 
@@ -27,7 +32,7 @@ public class StudentService {
         Student student = studentRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("Invalid credentials"));
         
-        if (!student.getPassword().equals(password)) {
+        if (!passwordEncoder.matches(password, student.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
         
