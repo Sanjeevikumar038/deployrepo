@@ -13,9 +13,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @CrossOrigin(origins = "*")
 public class StudentController {
 
-    @Autowired
-    private StudentService studentService;
+    // @Autowired
+    // private StudentService studentService;
 
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("API is working without database!");
+    }
+
+    /*
     @PostMapping("/register")
     public ResponseEntity<?> registerStudent(@RequestBody Student student) {
         try {
@@ -50,6 +56,7 @@ public class StudentController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    */
     
     @RequestMapping(value = "/migrate", method = RequestMethod.OPTIONS)
     public ResponseEntity<?> handleOptions() {
