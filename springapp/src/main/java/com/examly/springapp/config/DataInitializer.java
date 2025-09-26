@@ -2,8 +2,8 @@ package com.examly.springapp.config;
 
 import com.examly.springapp.model.*;
 import com.examly.springapp.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -11,18 +11,19 @@ import java.util.Arrays;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
+    private final QuizRepository quizRepository;
+    private final QuestionRepository questionRepository;
+    private final OptionRepository optionRepository;
+    private final StudentRepository studentRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private QuizRepository quizRepository;
-    
-    @Autowired
-    private QuestionRepository questionRepository;
-    
-    @Autowired
-    private OptionRepository optionRepository;
-    
-    @Autowired
-    private StudentRepository studentRepository;
+    public DataInitializer(QuizRepository quizRepository, QuestionRepository questionRepository, OptionRepository optionRepository, StudentRepository studentRepository, PasswordEncoder passwordEncoder) {
+        this.quizRepository = quizRepository;
+        this.questionRepository = questionRepository;
+        this.optionRepository = optionRepository;
+        this.studentRepository = studentRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public void run(String... args) throws Exception {
@@ -71,15 +72,14 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println("Sample data initialized successfully!");
         }
         
-        // Create test student if none exists
         if (studentRepository.count() == 0) {
             Student testStudent = new Student();
             testStudent.setUsername("sanju");
-            testStudent.setPassword("password");
-            testStudent.setEmail("sanju@test.com");
+            testStudent.setPassword(passwordEncoder.encode("password"));
+            testStudent.setEmail("727723euc045@gmail.com");
             studentRepository.save(testStudent);
             
-            System.out.println("Test student created: username=sanju, password=password");
+            System.out.println("Test student created: username=sanju, password=password, email=727723euc045@gmail.com");
         }
     }
 }

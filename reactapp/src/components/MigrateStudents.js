@@ -1,1 +1,0 @@
-// Component removed - migration not needed for database-only app
