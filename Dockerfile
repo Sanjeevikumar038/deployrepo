@@ -7,10 +7,10 @@ FROM maven:3.8.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
 # Copy the build file (pom.xml) first to cache the dependencies
-COPY pom.xml .
+COPY springapp/pom.xml .
 
-# Copy the source code (now in the root directory)
-COPY src ./src
+# Copy the source code
+COPY springapp/src ./src
 
 # Build the application, creating a JAR file
 RUN mvn clean package -DskipTests
